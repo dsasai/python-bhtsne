@@ -1,0 +1,3 @@
+*.pyc
+*.so
+bhtsne_wrapper.cpp
