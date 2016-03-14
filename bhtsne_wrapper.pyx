@@ -10,7 +10,7 @@ cdef extern from "tsne.h":
 
 
 cdef class BHTSNE:
-    cdef TSNE* tsne # hold a C++ instance
+    cdef TSNE* tsne
 
     def __cinit__(self):
         self.tsne = new TSNE()
@@ -21,7 +21,6 @@ cdef class BHTSNE:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def run(self, X, N, D, d, perplexity, theta, rand_seed):
-        print "running"
         cdef np.ndarray[np.float64_t, ndim=2, mode='c'] _X = np.ascontiguousarray(X)
         cdef np.ndarray[np.float64_t, ndim=2, mode='c'] Y = np.zeros((N, d), dtype=np.float64)
         self.tsne.run(&_X[0,0], N, D, &Y[0,0], d, perplexity, theta, rand_seed)
