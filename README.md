@@ -1,1 +1,6 @@
 # python-bhtsne
+
+
+## TODO
+
+- Documentation
