@@ -8,7 +8,6 @@ cdef extern from "tsne.h":
         TSNE()
         void run(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int rand_seed, double* SX, int SN)
 
-
 cdef class BHTSNE:
     cdef TSNE* tsne
 
