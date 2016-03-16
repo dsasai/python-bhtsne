@@ -41,7 +41,7 @@ This should result in:
 
 ### Transition between two t-SNE results
 
-When adding new data the t-SNE plot can change dramatically (even when settings a random seed). This makes it hard to animate between different plots when data is in motion.
+When adding new data the t-SNE plot can change dramatically (even when setting a random seed). This makes it hard to animate between different plots when data is in motion.
 
 This problem can be partially solved by setting the start coordinates of the first N vectors. In this example we'll create two t-SNE plots, the first one will have part of the iris data set. The second will include the remaining 10 of the iris set:
 
