@@ -8,11 +8,15 @@ addons:
     packages:
       - build-essential
       - libatlas-base-dev
+      - gfortran
 
 sudo: false
 
 install:
   - pip install cython
+  - pip install scipy==0.9
+  - pip install scikit-learn==0.17
+  - pip install numpy==1.10.4
   - make
 
 script:
