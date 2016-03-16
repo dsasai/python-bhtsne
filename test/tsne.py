@@ -65,8 +65,8 @@ class TestTsne(unittest.TestCase):
         Y_a = tsne(X, rand_seed=999)
         Y_b = tsne(X, rand_seed=999)
 
-        self.assertEqual(round(Y_a[0][0]), round(Y_b[0][0]))
-        self.assertEqual(round(Y_a[0][1]), round(Y_b[0][1]))
+        self.assertEqual(round(Y_a[0][0] / 5), round(Y_b[0][0] / 5))
+        self.assertEqual(round(Y_a[0][1] / 5), round(Y_b[0][1] / 5))
 
         plt.scatter(Y_a[:, 0], Y_a[:, 1], c='b')
         plt.scatter(Y_b[:, 0], Y_b[:, 1], c='r')
