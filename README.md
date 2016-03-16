@@ -6,7 +6,7 @@ This module is based on the excellent work of [Laurens van der Maaten](https://g
 
 ## Features
 
-- Better results than the Scikit-Learn BH t-SNE implementation: [bhtsne](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris.png) VS [Scikit-Learn]([Better results](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris_sklearn.png)
+- Better results than the Scikit-Learn BH t-SNE implementation: [bhtsne](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris.png) VS [Scikit-Learn](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris_sklearn.png)
 - Fast (C++/Cython)
 - Ability to set random seed
 - Ability to set pre-defined plot coordinates (allow for smooth transitions between plots)
