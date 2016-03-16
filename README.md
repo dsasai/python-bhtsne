@@ -6,7 +6,7 @@ This module is based on the excellent work of [Laurens van der Maaten](https://g
 
 ## Features
 
-- [Better results](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris_sklearn.png) than the Scikit-Learn BH t-SNE implementation
+- Better results than the Scikit-Learn BH t-SNE implementation ([bhtsne](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris.png) VS [Scikit-Learn]([Better results](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris_sklearn.png)))
 - Fast (C++/Cython)
 - Ability to set random seed
 - Ability to set pre-defined plot coordinates (allow for smooth transitions between plots)
@@ -17,12 +17,6 @@ From pip:
 
 ```bash
 pip install bhtsne
-```
-
-Custom build:
-
-```bash
-make
 ```
 
 ## Examples
@@ -44,7 +38,14 @@ This should result in:
 
 ![Iris Plot](https://raw.githubusercontent.com/dominiek/python-bhtsne/master/test/plots/iris.png)
 
-## Tests
+## Development
+
+Build:
+
+```bash
+pip install cython
+make
+```
 
 To run unit tests:
 
