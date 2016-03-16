@@ -49,8 +49,6 @@ class TestTsne(unittest.TestCase):
         plt.scatter(Y[:, 0], Y[:, 1], c=iris.target)
 
         num_clusters, cluster_centers = mean_shift(Y)
-        #self.assertTrue(num_clusters > 1)
-        #self.assertTrue(num_clusters < 4)
         for k in range(num_clusters):
             cluster_center = cluster_centers[k]
             plt.plot(cluster_center[0], cluster_center[1], 'x', markerfacecolor='r',
