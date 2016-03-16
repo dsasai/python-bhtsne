@@ -12,6 +12,7 @@ addons:
 sudo: false
 
 install:
+  - pip install cython
   - make
 
 script:
