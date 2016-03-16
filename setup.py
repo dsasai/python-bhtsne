@@ -20,7 +20,7 @@ extensions = [
 
 setup(
     name="bhtsne",
-    version="0.1.1",
+    version="0.1.2",
     description='Python module for Barnes-Hut implementation of t-SNE (Cython)',
     url='https://github.com/dominiek/python-bhtsne',
     ext_modules=cythonize(extensions),
