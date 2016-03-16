@@ -1,3 +1,6 @@
+
+[![travis-ci](https://api.travis-ci.org/dominiek/python-bhtsne.svg)](https://travis-ci.org/dominiek/python-bhtsne)
+
 # Python BHTSNE
 
 Python module for Barnes-Hut implementation of t-SNE (Cython).
@@ -83,3 +86,4 @@ Also creates visual plots in the `test/plots` folder.
 ## Todo
 
 - Allow more sophisticated control of updates to the t-SNE (streaming/online t-SNE)
+- Allow more control on the number of iterations and error rate thresholds
