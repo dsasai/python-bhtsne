@@ -5,6 +5,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 from bhtsne import tsne
 from sklearn.cluster import MeanShift, estimate_bandwidth
 from sklearn.manifold import TSNE
@@ -98,7 +99,14 @@ class TestTsne(unittest.TestCase):
         X_a = load_iris().data[:-10]
         X_b = load_iris().data
         Y_a = tsne(X_a, rand_seed=999)
-        Y_b = tsne(X_b, seed_positions=Y_a)
+        # Generate random positions for last 10 items
+        remainder_positions = np.array([
+            [(random.uniform(0, 1) * 0.0001), (random.uniform(0, 1) * 0.0001)]
+                for x in range(X_b.shape[0] - Y_a.shape[0])
+            ])
+        # Append them to previous TSNE output and use as seed_positions in next plot
+        seed_positions = np.vstack((Y_a, remainder_positions))
+        Y_b = tsne(X_b, seed_positions=seed_positions)
 
         self.assertEqual(round(Y_a[0][0] / 20), round(Y_b[0][0] / 20))
         self.assertEqual(round(Y_a[0][1] / 20), round(Y_b[0][1] / 20))

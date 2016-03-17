@@ -54,8 +54,14 @@ from sklearn.datasets import load_iris
 iris = load_iris()
 X_a = load_iris().data[:-10]
 X_b = load_iris().data
-Y_a = tsne(X_a, rand_seed=999)
-Y_b = tsne(X_b, seed_positions=Y_a)
+# Generate random positions for last 10 items
+remainder_positions = np.array([
+    [(random.uniform(0, 1) * 0.0001), (random.uniform(0, 1) * 0.0001)]
+        for x in range(X_b.shape[0] - Y_a.shape[0])
+    ])
+# Append them to previous TSNE output and use as seed_positions in next plot
+seed_positions = np.vstack((Y_a, remainder_positions))
+Y_b = tsne(X_b, seed_positions=seed_positions)
 plt.scatter(Y_a[:, 0], Y_a[:, 1], c='b')
 plt.scatter(Y_b[:-10, 0], Y_b[:-10, 1], c='r')
 plt.scatter(Y_b[-10:, 0], Y_b[-10:, 1], c='g')

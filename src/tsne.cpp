@@ -46,15 +46,17 @@
 using namespace std;
 
 // Perform t-SNE
-void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int rand_seed, double* SX, int SN) {
+void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int rand_seed, bool skip_random_init) {
 
     // Set random seed
-    if(rand_seed >= 0) {
-        printf("Using random seed: %d\n", rand_seed);
-        srand((unsigned int) rand_seed);
-    } else {
-        printf("Using current time as random seed...\n");
-        srand(time(NULL));
+    if (skip_random_init != true) {
+      if(rand_seed >= 0) {
+          printf("Using random seed: %d\n", rand_seed);
+          srand((unsigned int) rand_seed);
+      } else {
+          printf("Using current time as random seed...\n");
+          srand(time(NULL));
+      }
     }
 
     // Determine whether we are using an exact algorithm
@@ -133,12 +135,8 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexit
     else {      for(int i = 0; i < row_P[N]; i++) val_P[i] *= 12.0; }
 
 	// Initialize solution (randomly)
-	for(int i = 0; i < N * no_dims; i++) {
-    if (SN > 0 && i <= (SN * no_dims)) {
-      Y[i] = SX[i];
-    } else {
-      Y[i] = randn() * .0001;
-    }
+  if (skip_random_init != true) {
+  	for(int i = 0; i < N * no_dims; i++) Y[i] = randn() * .0001;
   }
 
 	// Perform main training loop
@@ -748,8 +746,7 @@ int main() {
 		double* Y = (double*) malloc(N * no_dims * sizeof(double));
 		double* costs = (double*) calloc(N, sizeof(double));
         if(Y == NULL || costs == NULL) { printf("Memory allocation failed!\n"); exit(1); }
-		double* SX = (double*) malloc(0);
-		tsne->run(data, N, D, Y, no_dims, perplexity, theta, rand_seed, SX, 0);
+		tsne->run(data, N, D, Y, no_dims, perplexity, theta, rand_seed, false);
 
 		// Save the results
 		tsne->save_data(Y, landmarks, costs, N, no_dims);
@@ -757,7 +754,6 @@ int main() {
         // Clean up the memory
 		free(data); data = NULL;
 		free(Y); Y = NULL;
-		free(SX); SX = NULL;
 		free(costs); costs = NULL;
 		free(landmarks); landmarks = NULL;
     }
