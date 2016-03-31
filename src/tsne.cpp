@@ -45,9 +45,7 @@
 
 using namespace std;
 
-// Perform t-SNE
-void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int rand_seed, bool skip_random_init) {
-
+TSNE::TSNE(double* X, int N, int D, double* Y, int no_dims, int rand_seed, bool skip_random_init) {
     // Set random seed
     if (skip_random_init != true) {
       if(rand_seed >= 0) {
@@ -58,18 +56,36 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexit
           srand(time(NULL));
       }
     }
+    this->X = X;
+    this->N = N;
+    this->D = D;
+    this->Y = Y;
+    this->no_dims = no_dims;
+    this->skip_random_init = skip_random_init;
+}
+
+// Perform t-SNE
+void TSNE::fit(double perplexity, double theta) {
+
+    double* X = this->X;
+    int N = this->N;
+    int D = this->D;
+    double* Y = this->Y;
+    int no_dims = this->no_dims;
+    bool skip_random_init = this->skip_random_init;
+
+    // Set learning parameters
+    float total_time = .0;
+    clock_t start, end;
+    int max_iter = 1000, stop_lying_iter = 250, mom_switch_iter = 250;
+    double momentum = .5, final_momentum = .8;
+    double eta = 200.0;
+
 
     // Determine whether we are using an exact algorithm
     if(N - 1 < 3 * perplexity) { printf("Perplexity too large for the number of data points!\n"); exit(1); }
     printf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
     bool exact = (theta == .0) ? true : false;
-
-    // Set learning parameters
-    float total_time = .0;
-    clock_t start, end;
-	int max_iter = 1000, stop_lying_iter = 250, mom_switch_iter = 250;
-	double momentum = .5, final_momentum = .8;
-	double eta = 200.0;
 
     // Allocate some memory
     double* dY    = (double*) malloc(N * no_dims * sizeof(double));
@@ -89,10 +105,9 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexit
     }
     for(int i = 0; i < N * D; i++) X[i] /= max_X;
 
-    // Compute input similarities for exact t-SNE
     double* P; unsigned int* row_P; unsigned int* col_P; double* val_P;
+    // Compute input similarities for exact t-SNE
     if(exact) {
-
         // Compute similarities
         printf("Exact?");
         P = (double*) malloc(N * N * sizeof(double));
@@ -134,17 +149,17 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexit
     if(exact) { for(int i = 0; i < N * N; i++)        P[i] *= 12.0; }
     else {      for(int i = 0; i < row_P[N]; i++) val_P[i] *= 12.0; }
 
-	// Initialize solution (randomly)
-  if (skip_random_init != true) {
-  	for(int i = 0; i < N * no_dims; i++) Y[i] = randn() * .0001;
-  }
+  	// Initialize solution (randomly)
+    if (skip_random_init != true) {
+    	for(int i = 0; i < N * no_dims; i++) Y[i] = randn() * .0001;
+    }
 
-	// Perform main training loop
+	  // Perform main training loop
     if(exact) printf("Input similarities computed in %4.2f seconds!\nLearning embedding...\n", (float) (end - start) / CLOCKS_PER_SEC);
     else printf("Input similarities computed in %4.2f seconds (sparsity = %f)!\nLearning embedding...\n", (float) (end - start) / CLOCKS_PER_SEC, (double) row_P[N] / ((double) N * (double) N));
     start = clock();
 
-	for(int iter = 0; iter < max_iter; iter++) {
+	  for(int iter = 0; iter < max_iter; iter++) {
 
         // Compute (approximate) gradient
         if(exact) computeExactGradient(P, Y, N, no_dims, dY);
@@ -156,10 +171,10 @@ void TSNE::run(double* X, int N, int D, double* Y, int no_dims, double perplexit
 
         // Perform gradient update (with momentum and gains)
         for(int i = 0; i < N * no_dims; i++) uY[i] = momentum * uY[i] - eta * gains[i] * dY[i];
-		for(int i = 0; i < N * no_dims; i++)  Y[i] = Y[i] + uY[i];
+		    for(int i = 0; i < N * no_dims; i++)  Y[i] = Y[i] + uY[i];
 
         // Make solution zero-mean
-		zeroMean(Y, N, no_dims);
+		    zeroMean(Y, N, no_dims);
 
         // Stop lying about the P-values after a while, and switch momentum
         if(iter == stop_lying_iter) {
@@ -682,7 +697,7 @@ double TSNE::randn() {
 
 // Function that loads data from a t-SNE file
 // Note: this function does a malloc that should be freed elsewhere
-bool TSNE::load_data(double** data, int* n, int* d, int* no_dims, double* theta, double* perplexity, int* rand_seed) {
+static inline bool load_data(double** data, int* n, int* d, int* no_dims, double* theta, double* perplexity, int* rand_seed) {
 
 	// Open file, read first 2 integers, allocate memory, and read the data
     FILE *h;
@@ -705,7 +720,7 @@ bool TSNE::load_data(double** data, int* n, int* d, int* no_dims, double* theta,
 }
 
 // Function that saves map to a t-SNE file
-void TSNE::save_data(double* data, int* landmarks, double* costs, int n, int d) {
+static inline void save_data(double* data, int* landmarks, double* costs, int n, int d) {
 
 	// Open file, write first 2 integers and then the data
 	FILE *h;
@@ -727,35 +742,36 @@ void TSNE::save_data(double* data, int* landmarks, double* costs, int n, int d) 
 int main() {
 
     // Define some variables
-	int origN, N, D, no_dims, *landmarks;
-	double perc_landmarks;
-	double perplexity, theta, *data;
+    int origN, N, D, no_dims, *landmarks;
+    double perc_landmarks;
+    double perplexity, theta, *data;
     int rand_seed = -1;
-    TSNE* tsne = new TSNE();
+    TSNE* tsne;
 
     // Read the parameters and the dataset
-	if(tsne->load_data(&data, &origN, &D, &no_dims, &theta, &perplexity, &rand_seed)) {
-
-		// Make dummy landmarks
+    if(load_data(&data, &origN, &D, &no_dims, &theta, &perplexity, &rand_seed)) {
+        // Make dummy landmarks
         N = origN;
         int* landmarks = (int*) malloc(N * sizeof(int));
         if(landmarks == NULL) { printf("Memory allocation failed!\n"); exit(1); }
         for(int n = 0; n < N; n++) landmarks[n] = n;
 
-		// Now fire up the SNE implementation
-		double* Y = (double*) malloc(N * no_dims * sizeof(double));
-		double* costs = (double*) calloc(N, sizeof(double));
-        if(Y == NULL || costs == NULL) { printf("Memory allocation failed!\n"); exit(1); }
-		tsne->run(data, N, D, Y, no_dims, perplexity, theta, rand_seed, false);
+        // Now fire up the SNE implementation
+        double* Y = (double*) malloc(N * no_dims * sizeof(double));
+        double* costs = (double*) calloc(N, sizeof(double));
+            if(Y == NULL || costs == NULL) { printf("Memory allocation failed!\n"); exit(1); }
 
-		// Save the results
-		tsne->save_data(Y, landmarks, costs, N, no_dims);
+        tsne = new TSNE(data, N, D, Y, no_dims, rand_seed, false);
+        tsne->fit(perplexity, theta);
 
-        // Clean up the memory
-		free(data); data = NULL;
-		free(Y); Y = NULL;
-		free(costs); costs = NULL;
-		free(landmarks); landmarks = NULL;
+        // Save the results
+        save_data(Y, landmarks, costs, N, no_dims);
+
+            // Clean up the memory
+        free(data); data = NULL;
+        free(Y); Y = NULL;
+        free(costs); costs = NULL;
+        free(landmarks); landmarks = NULL;
+        delete(tsne);
     }
-    delete(tsne);
 }

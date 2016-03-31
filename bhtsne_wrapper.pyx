@@ -6,24 +6,25 @@ from libcpp cimport bool
 
 cdef extern from "tsne.h":
     cdef cppclass TSNE:
-        TSNE()
-        void run(double* X, int N, int D, double* Y, int no_dims, double perplexity, double theta, int rand_seed, bool skip_random_init)
+        TSNE(double* X, int N, int D, double* Y, int no_dims, int rand_seed, bool skip_random_init)
+        void fit(double perplexity, double theta)
 
 cdef class BHTSNE:
-    cdef TSNE* tsne
-
-    def __cinit__(self):
-        self.tsne = new TSNE()
-
-    def __dealloc__(self):
-        del self.tsne
+    cdef TSNE* _tsne
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def run(self, X, no_rows, no_cols, no_dims, perplexity, theta, rand_seed, seed_positions, skip_random_init):
+    def __cinit__(self, X, no_rows, no_cols, Y, no_dims, rand_seed, seed_positions, skip_random_init):
         cdef np.ndarray[np.float64_t, ndim=2, mode='c'] _X = np.ascontiguousarray(X)
-        cdef np.ndarray[np.float64_t, ndim=2, mode='c'] Y = np.zeros((no_rows, no_dims), dtype=np.float64)
+        cdef np.ndarray[np.float64_t, ndim=2, mode='c'] _Y = np.ascontiguousarray(Y)
+        #cdef np.ndarray[np.float64_t, ndim=2, mode='c'] Y = np.zeros((no_rows, no_dims), dtype=np.float64)
         if skip_random_init:
-          Y = seed_positions
-        self.tsne.run(&_X[0,0], no_rows, no_cols, &Y[0,0], no_dims, perplexity, theta, rand_seed, skip_random_init)
-        return Y
+            Y = seed_positions
+        #self._Y = &Y
+        self._tsne = new TSNE(&_X[0,0], no_rows, no_cols, &_Y[0,0], no_dims, rand_seed, skip_random_init)
+
+    def __dealloc__(self):
+        del self._tsne
+
+    def fit(self, perplexity, theta):
+      self._tsne.fit(perplexity, theta)

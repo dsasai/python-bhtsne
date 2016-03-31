@@ -2,13 +2,14 @@
 import os
 import unittest
 import matplotlib as mpl
-mpl.use('Agg')
+if os.environ.get('SHOW_PLOTS', None) == None:
+    mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-from bhtsne import tsne
+from bhtsne import TSNE
 from sklearn.cluster import MeanShift, estimate_bandwidth
-from sklearn.manifold import TSNE
+import sklearn.manifold
 from sklearn.datasets import load_iris
 
 PLOTS_DIR = os.path.dirname(os.path.realpath(__file__)) + '/plots'
@@ -26,7 +27,8 @@ class TestTsne(unittest.TestCase):
         iris = load_iris()
         X = iris.data
         self.assertEqual(mean_shift(X)[0], 2)
-        Y = tsne(X)
+        tsne = TSNE(X)
+        Y = tsne.fit()
         plt.scatter(Y[:, 0], Y[:, 1], c=iris.target)
 
         num_clusters, cluster_centers = mean_shift(Y)
@@ -41,13 +43,13 @@ class TestTsne(unittest.TestCase):
         if os.environ.get('SHOW_PLOTS', None) != None:
             plt.show()
         plt.close()
-
+"""
     def test_iris_sklearn(self):
         iris = load_iris()
         X = iris.data
         self.assertEqual(mean_shift(X)[0], 2)
 
-        sklearn_tsne = TSNE(learning_rate=100)
+        sklearn_tsne = sklearn.manifold.TSNE(learning_rate=100)
         Y = sklearn_tsne.fit_transform(X)
         plt.scatter(Y[:, 0], Y[:, 1], c=iris.target)
 
@@ -119,3 +121,4 @@ class TestTsne(unittest.TestCase):
         if os.environ.get('SHOW_PLOTS', None) != None:
             plt.show()
         plt.close()
+    """
