@@ -1,6 +1,6 @@
 
 import numpy as np
-from bhtsne_wrapper import BHTSNE
+from wrapper import BHTSNE
 
 class InvalidSeedPositionError(Exception):
     pass

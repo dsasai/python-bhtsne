@@ -4,8 +4,8 @@ all:
 
 .PHONY: clean
 clean:
-	rm -f bhtsne_wrapper.cpp
-	rm -f bhtsne_wrapper.so
+	rm -f bhtsne/wrapper.cpp
+	rm -f bhtsne/wrapper.so
 
 .PHONY: test
 test:
