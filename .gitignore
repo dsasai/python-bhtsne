@@ -1,6 +1,6 @@
 *.pyc
 *.so
-bhtsne/wrapper.cpp
+bhtsne_wrapper.cpp
 dist
 MANIFEST
 *.egg-info/
